@@ -1,8 +1,6 @@
 from unittest import TestCase
 from Document import Document
 
-text =
-
 class TestDocument(TestCase):
     def test_create_from_text(self):
         doc = Document()

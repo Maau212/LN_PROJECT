@@ -4,6 +4,7 @@ import nltk
 import re
 from Token import Token
 
+
 class Document:
     """
     A document is a combination of text and the positions of the tags and elements in that text.
@@ -57,7 +58,7 @@ class Document:
             if pos >= 0:
                 offset = pos + len(word)
                 doc.tokens.append(
-                    Token(doc, pos, offset, pos_tag, Token.get_shape_category(word), word, label=label))
+                    Token(doc, pos, offset, pos_tag, Token.get_shape_category(word), word, label))
         return doc
 
     @staticmethod
