@@ -23,8 +23,6 @@ from Token import Token
 
 class VectorParser:
     def __init__(self, file):
-        print("init")
-        print(file)
         self.documents = []
         self.words = []
         self.sentences = []  # Interval List
@@ -67,9 +65,10 @@ class VectorParser:
 
 if __name__ == '__main__':
     parser = VectorParser("eng.testa")
-    parser.show_doc()
+    # parser.show_doc()
 
-    doc = Document()
-    doc.create_from_vectors(parser.documents[0]['words'],
+    doc = Document.create_from_vectors(parser.documents[0]['words'],
                             parser.documents[0]['sentences'],
                             parser.documents[0]['labels'])
+
+    doc.show()

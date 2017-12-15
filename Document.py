@@ -15,6 +15,11 @@ class Document:
         self.tokens = None
         self.sentences = None
 
+    def show(self):
+        print(self.text)
+        print(self.tokens)
+        print(self.sentences)
+
     @classmethod
     def create_from_text(cls, text: str = None):
         """
@@ -58,7 +63,7 @@ class Document:
             if pos >= 0:
                 offset = pos + len(word)
                 doc.tokens.append(
-                    Token(doc, pos, offset, pos_tag, Token.get_shape_category(word), word, label))
+                    Token(doc, pos, offset, pos_tag, Document.get_shape_category(word), word, label))
         return doc
 
     @staticmethod
@@ -119,22 +124,14 @@ class Document:
          """
         offset = 0
         tokens = []
-        missing = None
         for token, pos_tag in zip(word_tokens, pos_tags):
             # Traiter le changement de ligne '\n' avec pos tag 'NL'
-
-            pos = text.find(token, offset, offset + max(50, len(token)))
-            if pos > -1:
-                if missing:
-                    print('missing')
-                # Find missing
-                # Make Token instance + add it to list
-                # Traiter le changement de ligne '\n' avec pos tag 'NL'
-
-            # Make Token instance: Token(doc, start, end, pos, shape, text) shape = get_shape_category(token)
-            # Add to list of tokens
+            position = text.find(token, offset, offset + max(len(token), 50))
+            if position > -1:
+                tokens.append(Token(doc, start= position, end= position + max(len(token)), pos= pos_tag, shape=Document.get_shape_category(token)))
+                offset += max(len(token))
             else:
-                print('else')
+                continue
             # Record missing
 
     @staticmethod

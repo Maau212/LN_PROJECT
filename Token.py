@@ -1,10 +1,9 @@
 from Interval import Interval
 
-
 class Token(Interval):
     """ A Interval representing word like units of text with a dictionary of features """
 
-    def __init__(self, document, start: int, end: int, pos: str, shape: int, text: str, label=None):
+    def __init__(self, document, start: int, end: int, pos: str, shape: str, text: str, label=None):
         Interval.__init__(self, start, end)
         """
         Note that a token has 2 text representations.
@@ -19,29 +18,31 @@ class Token(Interval):
         """
 
         self._doc = document
-        self.start = start
-        self.end = end
-        self.pos = pos
-        self.shape = shape
-        self.text = text
+        self._start = start
+        self._end = end
+        self._pos = pos
+        self._shape = shape
+        self._text = text
         self.label = label
 
 
-"""
     @property
     def text(self):
         return self._text if self._text is not None else self._doc[self.start:]
 
     @property
     def pos(self):
+        return self._pos if self._pos is not None else None
 
     @property
     def shape(self):
+        return self._shape if self._shape is not None else None
 
     def __getitem__(self, item):
+        return None
+
     def __repr__(self):
-        return 'Token({}, {}, {}, {})'.format(self.text, self.start, self.end, self.features)
-"""
+        return 'Token({}, {}, {})'.format(self._text, self._start, self._end)
 
 
 class Sentence(Interval):
