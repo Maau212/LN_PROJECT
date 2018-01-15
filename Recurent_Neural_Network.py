@@ -3,10 +3,19 @@ from keras.models import Sequential, Model
 from keras.layers import Dense, Embedding, Flatten, Dropout, Input, LSTM, Bidirectional, TimeDistributed
 from keras.datasets import imdb
 from sklearn import metrics
+import os
+from keras.callbacks import TensorBoard
 
 vocab_size = 20000
 maxlen = 100  # cut texts after this number of words (among top max_features most common words)
-batch_size = 32
+
+### other hyperparameters
+n_folds = 2
+batch_size = 128
+nb_epoch = 50
+log_path = 'C:\\Users\\Julien\\Desktop\\logs\\TAL\\RNN'
+t = TensorBoard(log_dir=log_path, batch_size=batch_size)
+
 
 print('Loading data...')
 (x_train, y_train), (x_test, y_test) = imdb.load_data(num_words=vocab_size)
@@ -38,7 +47,9 @@ print('Train...')
 model.fit(x_train, y_train,
           batch_size=batch_size,
           epochs=10,
-          validation_data=(x_test, y_test))
+          validation_data=(x_test, y_test),
+          callbacks=[t]
+          )
 
 score, acc = model.evaluate(x_test, y_test, batch_size=batch_size)
 print('\n')
@@ -48,3 +59,5 @@ print('Evaluate accuracy:', acc)
 print('Testing metrics')
 y_pred = model.predict_classes(x_test, batch_size=1, verbose=0)
 print(metrics.classification_report(y_test, y_pred.flatten()))
+
+model.save_weights(os.path.dirname(os.path.realpath(__file__)) + '\\models\\RNN.e10')
