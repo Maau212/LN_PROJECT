@@ -3,6 +3,7 @@ from Interval import Interval
 import nltk
 import re
 from Token import Token
+from Token import Sentence
 
 
 class Document:
@@ -12,12 +13,10 @@ class Document:
 
     def __init__(self):
         self.text = None
-        self.tokens = None
         self.sentences = None
 
     def show(self):
         print(self.text)
-        print(self.tokens)
         print(self.sentences)
 
     @classmethod
@@ -43,27 +42,41 @@ class Document:
 
     # Pour Named Entity Recognition
     @classmethod
-    def create_from_vectors(cls, words: List[str], sentences: List[Interval], labels: List[str]):
+    def create_from_vectors(cls, words: List[str], intervales: List[Interval], labels: List[str]):
         doc = Document()
-        text = []
+        sentences = []
         offset = 0
         doc.sentences = []
-        for sentence in sentences:
-            text.append(' '.join(words[sentence.start:sentence.end + 1]) + ' ')
-            doc.sentences.append(Interval(offset, offset + len(text[-1])))
-            offset += len(text[-1])
-        doc.text = ''.join(text)
-
-        offset = 0
-        doc.tokens = []
-        for word_pos, label in zip(nltk.pos_tag(words), labels):
-            word = word_pos[0]
-            pos_tag = word_pos[1]
-            pos = doc.text.find(word, offset)
-            if pos >= 0:
-                offset = pos + len(word)
-                doc.tokens.append(
+        for internval in intervales:
+            sentence_tokens = list()
+            sentences.append(' '.join(words[internval.start:internval.end + 1]) + ' ')
+            word_number = len(sentences)
+            sentence_words = words[internval.start:internval.end + 1]
+            sentence_labels = labels[internval.start:internval.end + 1]
+            for word_pos, label in zip(nltk.pos_tag(sentence_words), sentence_labels):
+                word = word_pos[0]
+                pos_tag = word_pos[1]
+                pos = sentences[word_pos.index(word)].find(word, offset)
+                if pos >= 0:
+                    offset = pos + len(word)
+                    sentence_tokens.append(
                     Token(doc, pos, offset, pos_tag, Document.get_shape_category(word), word, label))
+                # doc.sentences.append(Interval(offset, offset + len(text[-1])))
+            doc.sentences.append(Sentence(doc, sentences, sentence_tokens, offset, offset + len(sentences[-1])))
+            offset += len(sentences[-1])
+        doc.text = ''.join(sentences)
+
+        # offset = 0
+        # doc.tokens = []
+        # for word_pos, label in zip(nltk.pos_tag(words), labels):
+        #     word = word_pos[0]
+        #     pos_tag = word_pos[1]
+        #     pos = doc.text.find(word, offset)
+        #     if pos >= 0:
+        #         offset = pos + len(word)
+        #         doc.sentences.tokens.append(
+        #             Token(doc, pos, offset, pos_tag, Document.get_shape_category(word), word, label))
+
         return doc
 
     @staticmethod
@@ -118,7 +131,7 @@ class Document:
     def _find_tokens(doc, word_tokens, pos_tags, text):
         """ Calculate the span of each token, find which element it belongs to and create a new Token instance 
             :param doc: Reference to documents instance
-            :param word_Tokens:  list of strings(tokens) coming out of nltk.word_tokenize
+            :param word_tokens:  list of strings(tokens) coming out of nltk.word_tokenize
             :param pos_tags:  list of strings(pos tag) coming out of nltk.pos_tag
             :return: list of tokens as Token class
          """
@@ -128,14 +141,23 @@ class Document:
             # Traiter le changement de ligne '\n' avec pos tag 'NL'
             position = text.find(token, offset, offset + max(len(token), 50))
             if position > -1:
-                tokens.append(Token(doc, start= position, end= position + max(len(token)), pos= pos_tag, shape=Document.get_shape_category(token)))
+                tokens.append(Token(doc, start=position, end= position + max(len(token)), pos= pos_tag, shape=Document.get_shape_category(token)))
                 offset += max(len(token))
             else:
                 continue
+        return tokens
             # Record missing
 
     @staticmethod
-    def _find_sentences(doc, doc_text: str):
+    def _find_sentences(doc_text: str, sentences):
         """ yield Sentence objects each time a sentence is found in the text """
-
-        # TODO: To be implemented
+        offset = 0
+        inter = list()
+        for sentence in sentences:
+            position = doc_text.find(sentence, offset)
+            if position > -1:
+                inter.append(Interval(start=position, end=position + len(sentence)))
+                offset = position + len(sentence)
+            else:
+                continue
+        return inter

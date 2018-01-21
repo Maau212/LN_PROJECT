@@ -23,7 +23,7 @@ class Token(Interval):
         self._pos = pos
         self._shape = shape
         self._text = text
-        self.label = label
+        self._label = label
 
 
     @property
@@ -42,20 +42,21 @@ class Token(Interval):
         return None
 
     def __repr__(self):
-        return 'Token({}, {}, {})'.format(self._text, self._start, self._end)
+        return 'Token({}, {}, {}, {}, {}, {})'.format(self._text, self._pos, self._start, self._end, self._shape, self._label)
 
 
 class Sentence(Interval):
     """ Interval corresponding to a Sentence"""
 
-    def __init__(self, document, start: int, end: int):
+    def __init__(self, document, text, tokens, start: int, end: int):
         Interval.__init__(self, start, end)
-        self._doc = document
+        self.doc = document
+        self.text = text
+        self.tokens = tokens
 
     def __repr__(self):
-        return 'Sentence({}, {})'.format(self.start, self.end)
+        return 'Sentence({}, {}, {})'.format(self.start, self.end, self.tokens)
 
-    @property
     def tokens(self):
         """Returns the list of tokens contained in a sentence"""
-        # TODO: To be implemented (tip: use Interval.overlap)
+        return self.tokens

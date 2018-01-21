@@ -6,23 +6,39 @@ from sklearn import metrics
 import os
 from keras.callbacks import TensorBoard
 
+from gensim.models import KeyedVectors
+from Vectorizer import Vectorizer
+import Parsers
+
 vocab_size = 20000
 maxlen = 100  # cut texts after this number of words (among top max_features most common words)
 
 ### other hyperparameters
 n_folds = 2
 batch_size = 128
-nb_epoch = 50
+nb_epoch = 100
 log_path = 'C:\\Users\\Julien\\Desktop\\logs\\TAL\\RNN'
 t = TensorBoard(log_dir=log_path, batch_size=batch_size)
-
+emb_file = 'glove.6B.50d.w2v.txt'
 
 print('Loading data...')
-(x_train, y_train), (x_test, y_test) = imdb.load_data(num_words=vocab_size)
+# (x_train, y_train), (x_test, y_test) = imdb.load_data(num_words=vocab_size)
+
+WtoV = Vectorizer(emb_file)
+
+parser_train = Parsers.VectorParser("eng.train.txt")
+documents_train = parser_train.documents
+x_train = WtoV.encode_features(documents_train)
+y_train = WtoV.encode_annotations(documents_train)
+
+parser_test = Parsers.VectorParser("eng.testa")
+documents_test = parser_test.documents
+x_test = WtoV.encode_features(documents_test)
+y_test = WtoV.encode_annotations(documents_test)
 
 print('Pad sequences (samples x time)')
-x_train = sequence.pad_sequences(x_train, maxlen=maxlen)
-x_test = sequence.pad_sequences(x_test, maxlen=maxlen)
+x_train = sequence.pad_sequences(x_train, maxlen=None, dtype='float32')
+x_test = sequence.pad_sequences(x_test, maxlen=None, dtype='float32')
 
 print('x_train shape: {}'.format(x_train.shape))
 print('y_train shape: {}'.format(y_train.shape))
@@ -46,7 +62,7 @@ print(model.summary())
 print('Train...')
 model.fit(x_train, y_train,
           batch_size=batch_size,
-          epochs=10,
+          epochs=nb_epoch,
           validation_data=(x_test, y_test),
           callbacks=[t]
           )
@@ -60,4 +76,4 @@ print('Testing metrics')
 y_pred = model.predict_classes(x_test, batch_size=1, verbose=0)
 print(metrics.classification_report(y_test, y_pred.flatten()))
 
-model.save_weights(os.path.dirname(os.path.realpath(__file__)) + '\\models\\RNN.e10')
+model.save_weights(os.path.dirname(os.path.realpath(__file__)) + '\\models\\RNN.e100')

@@ -9,10 +9,7 @@ print('Moby Dick sample: {0}'.format(moby_dick[117:300]))
 
 # Séparation des phrases
 
-sentences = [sent for sent in sent_tokenize(moby_dick[117:300])]
-
 # Séparation des mots
-
 
 # Directement sur le texte
 words = word_tokenize(moby_dick[117:300])
